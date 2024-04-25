@@ -51,25 +51,3 @@ ULINE.
 *WRITE : / 'VALUE OF SECOND VARIABLE IS', ST2-SECOND.
 *WRITE : / 'VALUE OF FTHIRD VARIABLE IS', ST2-THIRD.
 *WRITE : / 'VALUE OF FOURTH VARIABLE IS', ST2-FOURTH.
-
-
-
-*A partir daqui estou simulando o mesmo caso acima mas com a estrutura fora de forma
-DATA : BEGIN OF ST2,
-      FOURTH TYPE P DECIMALS 2,
-      SECOND(20) TYPE C,
-      FIRST TYPE I,
-      THIRD TYPE STRING,
-
-  END OF ST2.  "Segunda estrutura de dados com sequencia diferente"
-
-*ST2 = ST1. "*option 1 "  - "Não funciona"
-
-*MOVE ST1 TO ST2. "OPTION 2" - "Não funciona"
-
- MOVE-CORRESPONDING ST1 TO ST2. "OPTION 3" -- Funcionou! AQui ele move os correspondentes independente da ordem!
-
-WRITE : / 'VALUE OF FIRST VARIABLE IS',  ST2-FIRST.
-WRITE : / 'VALUE OF SECOND VARIABLE IS', ST2-SECOND.
-WRITE : / 'VALUE OF FTHIRD VARIABLE IS', ST2-THIRD.
-WRITE : / 'VALUE OF FOURTH VARIABLE IS', ST2-FOURTH.
