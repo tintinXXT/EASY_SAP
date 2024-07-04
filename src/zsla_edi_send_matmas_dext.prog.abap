@@ -1,0 +1,235 @@
+*&---------------------------------------------------------------------*
+*& Report  /SIE/SLA_EDI_SENNA_MATMAS_DEXT
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+REPORT /SIE/SLA_EDI_SENNA_MATMAS_DEXT.
+
+
+
+*
+*TYPES: BEGIN OF ty_sel_screen,
+*         matnr TYPE mara-matnr,
+*         ean11 TYPE mara-ean11,
+*         werks TYPE marc-werks,
+*         lgnum TYPE mlgn-lgnum,
+**         MEINH TYPE MARM-MEINH,
+**       END OF ty_sel_screen.
+*
+*DATA: gs_sel_screen TYPE ty_sel_screen.
+
+TYPES:
+  BEGIN OF ty_matmas,
+         mandt TYPE mara-mandt,
+         matnr TYPE mara-matnr,
+         ean11 TYPE mara-ean11,
+         werks TYPE marc-werks,
+         lgnum TYPE mlgn-lgnum,
+         MEINH TYPE MARM-MEINH,
+  END OF ty_matmas.
+
+DATA: it_matmas TYPE TABLE OF ty_matmas.
+
+DATA: wa_matmas TYPE ty_matmas.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+
+PARAMETERS:
+  p_matnr TYPE mara-matnr,
+  p_ean11 TYPE mara-ean11,
+  p_werks TYPE marc-werks.
+*  p_lgnum TYPE mlgn-lgnum.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+
+START-OF-SELECTION.
+
+DATA: WA_EDIDC TYPE EDIDC.
+
+DATA: IT_EDIDC1 TYPE TABLE OF EDIDC,
+      WA_EDIDC1 TYPE EDIDC,
+      IT_EDIDD TYPE TABLE OF EDIDD,
+      WA_EDIDD TYPE EDIDD.
+
+TYPES: BEGIN OF TY_TEMP.
+        INCLUDE STRUCTURE MARA.
+       TYPES END OF TY_TEMP.
+
+TYPES: BEGIN OF TY_MARC.
+        INCLUDE STRUCTURE MARC.
+       TYPES END OF TY_MARC.
+
+TYPES: BEGIN OF TY_MARM.
+        INCLUDE STRUCTURE MARM.
+       TYPES END OF TY_MARM.
+
+TYPES: BEGIN OF TY_MAKT.
+        INCLUDE STRUCTURE MAKT.
+       TYPES END OF TY_MAKT.
+
+
+DATA: IT_TEMP TYPE TABLE OF TY_TEMP,
+      WA_TEMP TYPE TY_TEMP,
+      IT_MARC TYPE TABLE OF TY_MARC,
+      WA_MARC TYPE TY_MARC,
+      IT_MARM TYPE TABLE OF TY_MARM,
+      WA_MARM TYPE TY_MARM,
+      IT_MAKT TYPE TABLE OF TY_MAKT,
+      WA_MAKT TYPE TY_MAKT.
+
+DATA: WA_SGMT TYPE  E1MARAM,
+      WA_SGMT1 TYPE E1MAKTM,
+      WA_SGMT2 TYPE E1MARCM,
+      WA_SGMT3 TYPE E1MARMM.
+
+CASE sy-sysid.
+
+   WHEN 'BD1'.
+
+   WA_EDIDC-RCVPRT = 'LS'.
+   WA_EDIDC-RCVPRN = 'SNAPLOGIC'.
+   WA_EDIDC-RCVPRT = 'LS'.
+   WA_EDIDC-RCVPFC = 'LS'.
+   WA_EDIDC-SNDPFC = 'LS'.
+   WA_EDIDC-MESTYP = 'MATMAS'.
+   WA_EDIDC-IDOCTP = 'MATMAS04'.
+   WA_EDIDC-RCVPOR = 'SNAP_MAT'.
+
+  WHEN 'LQ4'.
+
+   WA_EDIDC-RCVPRT = 'LS'.
+   WA_EDIDC-RCVPRN = 'SNAPLOGIC'.
+   WA_EDIDC-RCVPRT = 'LS'.
+   WA_EDIDC-RCVPFC = 'LS'.
+   WA_EDIDC-SNDPFC = 'LS'.
+   WA_EDIDC-MESTYP = 'MATMAS'.
+   WA_EDIDC-IDOCTP = 'MATMAS04'.
+   WA_EDIDC-RCVPOR = 'SNAP_MAT'.
+
+  WHEN 'BR1'.
+
+   WA_EDIDC-RCVPRT = 'LS'.
+   WA_EDIDC-RCVPRN = 'SNAPLOGIC'.
+   WA_EDIDC-RCVPRT = 'LS'.
+   WA_EDIDC-RCVPFC = 'LS'.
+   WA_EDIDC-SNDPFC = 'LS'.
+   WA_EDIDC-MESTYP = 'MATMAS'.
+   WA_EDIDC-IDOCTP = 'MATMAS04'.
+   WA_EDIDC-RCVPOR = 'SNAP_MAT'.
+
+  WHEN OTHERS.
+
+    MESSAGE ' <> of LQ4 OR BR1 sysid' TYPE 'W'.
+
+ENDCASE.
+
+SELECT * FROM mara INTO TABLE IT_TEMP WHERE matnr = p_matnr.
+SELECT * FROM makt INTO TABLE IT_MAKT WHERE matnr = p_matnr.
+SELECT * FROM marc INTO TABLE IT_MARC WHERE matnr = p_matnr.
+SELECT * FROM marm INTO TABLE IT_MARM WHERE matnr = p_matnr.
+
+IF SY-SUBRC = 0.
+  LOOP AT IT_TEMP INTO WA_TEMP.
+    CLEAR WA_SGMT.
+    WA_SGMT-MATNR = WA_TEMP-MATNR.
+    WA_SGMT-MTART = WA_TEMP-MTART.
+    WA_SGMT-MBRSH = WA_TEMP-MBRSH.
+    WA_SGMT-MEINS = WA_TEMP-MEINS.
+    WA_SGMT-MSTAE = WA_TEMP-MSTAE.
+    WA_SGMT-MSTAV = WA_TEMP-MSTAV.
+    WA_SGMT-MSTDE = WA_TEMP-MSTDE.
+    WA_SGMT-MSTDV = WA_TEMP-MSTDV.
+    WA_SGMT-MATKL = WA_TEMP-MATKL.
+    WA_SGMT-BISMT = WA_TEMP-BISMT.
+    WA_SGMT-NORMT = WA_TEMP-NORMT.
+    WA_SGMT-LAENG = WA_TEMP-LAENG.
+    WA_SGMT-BREIT = WA_TEMP-BREIT.
+    WA_SGMT-HOEHE = WA_TEMP-HOEHE.
+    WA_SGMT-EAN11 = WA_TEMP-EAN11.
+    WA_SGMT-VOLUM = WA_TEMP-VOLUM.
+    WA_SGMT-BRGEW = WA_TEMP-BRGEW.
+    WA_SGMT-NTGEW = WA_TEMP-NTGEW.
+
+
+
+    CLEAR WA_EDIDD.
+    WA_EDIDD-SEGNAM = 'E1MARAM'.
+    WA_EDIDD-SDATA = WA_SGMT.
+
+    APPEND WA_EDIDD TO IT_EDIDD.
+ENDLOOP.
+*------------Begin of MAKT------------------
+
+   LOOP AT IT_MAKT INTO WA_MAKT.
+    CLEAR WA_SGMT1.
+    WA_SGMT1-MAKTX = WA_MAKT-MAKTX.
+
+
+
+    CLEAR WA_EDIDD.
+    WA_EDIDD-SEGNAM = 'E1MAKTM'.
+    WA_EDIDD-SDATA = WA_SGMT1.
+
+    APPEND WA_EDIDD TO IT_EDIDD.
+  ENDLOOP.
+*------------Begin of E1MARCM------------------
+
+    LOOP AT IT_MARC INTO WA_MARC.
+
+    CLEAR WA_SGMT2.
+    WA_SGMT2-STEUC = WA_MARC-STEUC.
+    WA_SGMT2-MAABC = WA_MARC-MAABC.
+
+
+
+    CLEAR WA_EDIDD.
+    WA_EDIDD-SEGNAM = 'E1MARCM'.
+    WA_EDIDD-SDATA = WA_SGMT2.
+
+    APPEND WA_EDIDD TO IT_EDIDD.
+  ENDLOOP.
+*------------Begin of E1MARM------------------
+
+    LOOP AT IT_MARM INTO WA_MARM.
+
+    CLEAR WA_SGMT3.
+    WA_SGMT3-MEINH = WA_MARM-MEINH.
+    WA_SGMT3-UMREZ = WA_MARM-UMREZ.
+    WA_SGMT3-EAN11 = WA_MARM-EAN11.
+    WA_SGMT3-HOEHE = WA_MARM-HOEHE.
+    WA_SGMT3-BREIT = WA_MARM-BREIT.
+    WA_SGMT3-LAENG = WA_MARM-LAENG.
+    WA_SGMT3-VOLUM = WA_MARM-VOLUM.
+
+
+    CLEAR WA_EDIDD.
+    WA_EDIDD-SEGNAM = 'E1MARMM'.
+    WA_EDIDD-SDATA = WA_SGMT3.
+
+    APPEND WA_EDIDD TO IT_EDIDD.
+
+     ENDLOOP.
+
+    CALL FUNCTION 'MASTER_IDOC_DISTRIBUTE'
+      EXPORTING
+        MASTER_IDOC_CONTROL = WA_EDIDC
+      TABLES
+        COMMUNICATION_IDOC_CONTROL = IT_EDIDC1
+        MASTER_IDOC_DATA           = IT_EDIDD.
+
+    IF SY-SUBRC = 0.
+      COMMIT WORK.
+      REFRESH IT_EDIDD.
+    ENDIF.
+
+ENDIF.
+
+IF IT_EDIDC1 IS NOT INITIAL.
+  LOOP AT IT_EDIDC1 INTO WA_EDIDC1.
+    WRITE :/ ' GENERATED IDOC NUMBERS :',
+            /     WA_EDIDC1-DOCNUM.
+  ENDLOOP.
+ENDIF.
